@@ -1,5 +1,6 @@
 import { generateSecret } from "./generateSecret";
-import { startRound, type Round } from "./round";
+import { startRound, submitGuess, type Round } from "./round";
+import { createDigitValidator } from "./createDigitValidator";
 import { countPossibleSecrets } from "./countPossibleSecrets";
 
 const main = document.createElement("main");
@@ -63,7 +64,63 @@ const guessInput = document.createElement("input");
 guessInput.type = "text";
 guessInput.autocomplete = "off";
 guessLabel.append("Your guess ", guessInput);
-game.append(guessLabel);
+const guessForm = document.createElement("form");
+const guessButton = document.createElement("button");
+guessButton.type = "submit";
+guessButton.textContent = "Check guess";
+
+const feedback = document.createElement("p");
+feedback.setAttribute("role", "status");
+
+const historyList = document.createElement("ol");
+
+guessForm.append(guessLabel, guessButton);
+game.append(guessForm, feedback, historyList);
+
+guessInput.addEventListener("input", () => {
+  if (round === null) return;
+
+  guessInput.value = [...guessInput.value]
+    .filter(createDigitValidator(round.base))
+    .slice(0, round.secret.length)
+    .join("");
+});
+
+guessForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (round === null) return;
+
+  const result = submitGuess(round, guessInput.value, Date.now());
+
+  if (result.status !== "accepted") {
+    const messages = {
+      invalid: "Enter the required number of different digits.",
+      duplicate: "You already tried that code.",
+      finished: "This round is already finished.",
+    };
+
+    feedback.textContent = messages[result.status];
+    return;
+  }
+
+  round = result.round;
+
+  const entry = round.history[round.history.length - 1];
+  const item = document.createElement("li");
+  item.textContent = `${entry.guess} — ${entry.bulls} bulls, ${entry.cows} cows`;
+  historyList.append(item);
+
+  guessInput.value = "";
+
+  if (round.finishedAt !== null) {
+    feedback.textContent = "You won!";
+    guessInput.disabled = true;
+    guessButton.disabled = true;
+  } else {
+    feedback.textContent = `${entry.bulls} bulls, ${entry.cows} cows`;
+    guessInput.focus();
+  }
+});
 
 startButton.addEventListener("click", () => {
   if (round !== null) {
