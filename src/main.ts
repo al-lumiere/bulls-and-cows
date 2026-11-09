@@ -1,3 +1,5 @@
+import { generateSecret } from "./generateSecret";
+import { startRound, type Round } from "./round";
 import { countPossibleSecrets } from "./countPossibleSecrets";
 
 const main = document.createElement("main");
@@ -50,6 +52,38 @@ const startButton = document.createElement("button");
 startButton.type = "button";
 startButton.textContent = "Start game";
 
+let round: Round | null = null;
+
+const game = document.createElement("section");
+game.hidden = true;
+
+const guessLabel = document.createElement("label");
+const guessInput = document.createElement("input");
+
+guessInput.type = "text";
+guessInput.autocomplete = "off";
+guessLabel.append("Your guess ", guessInput);
+game.append(guessLabel);
+
+startButton.addEventListener("click", () => {
+  if (round !== null) {
+    return;
+  }
+
+  const base = Number(baseSelect.value);
+  const length = Number(lengthSelect.value);
+  const secret = generateSecret(length, base);
+
+  round = startRound(secret, base, Date.now());
+
+  baseSelect.disabled = true;
+  lengthSelect.disabled = true;
+  startButton.disabled = true;
+
+  game.hidden = false;
+  guessInput.focus();
+});
+
 function updateSettings(): void {
   const base = Number(baseSelect.value);
 
@@ -69,7 +103,7 @@ baseSelect.addEventListener("change", updateSettings);
 lengthSelect.addEventListener("change", updateSettings);
 
 settings.append(possibilities, startButton);
-main.append(title, settings);
+main.append(title, settings, game);
 document.body.append(main);
 
 updateSettings();
