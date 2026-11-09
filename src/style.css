@@ -1,0 +1,109 @@
+:root {
+  --paper: #faf8f1;
+  --ink: #292721;
+  --line: #cbc5b8;
+  --accent: #812f3a;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Georgia, serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  width: min(38rem, calc(100% - 2rem));
+  margin: clamp(2rem, 8vw, 5rem) auto;
+}
+
+h1 {
+  margin: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--ink);
+  font-size: clamp(2.4rem, 8vw, 4.25rem);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+main > section {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0.75rem 0.5rem 0;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+input,
+select,
+button {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.2rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+input {
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.15em;
+}
+
+button {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+form ~ button {
+  background: transparent;
+  color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+ol {
+  padding-left: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+li {
+  padding: 0.2rem 0;
+}
+
+li::marker {
+  color: var(--accent);
+}
