@@ -77,6 +77,28 @@ const historyList = document.createElement("ol");
 guessForm.append(guessLabel, guessButton);
 game.append(guessForm, feedback, historyList);
 
+const newGameButton = document.createElement("button");
+newGameButton.type = "button";
+newGameButton.textContent = "New game";
+game.append(newGameButton);
+
+newGameButton.addEventListener("click", () => {
+  round = null;
+
+  game.hidden = true;
+  historyList.replaceChildren();
+  feedback.textContent = "";
+
+  guessInput.value = "";
+  guessInput.disabled = false;
+  guessButton.disabled = false;
+
+  baseSelect.disabled = false;
+  lengthSelect.disabled = false;
+  startButton.disabled = false;
+  baseSelect.focus();
+});
+
 guessInput.addEventListener("input", () => {
   if (round === null) return;
 
@@ -113,7 +135,10 @@ guessForm.addEventListener("submit", (event) => {
   guessInput.value = "";
 
   if (round.finishedAt !== null) {
-    feedback.textContent = "You won!";
+    const elapsedMs = Math.max(0, round.finishedAt - round.startedAt);
+    const seconds = (elapsedMs / 1000).toFixed(1);
+
+    feedback.textContent = `You won! Attempts: ${round.history.length}. Time: ${seconds} s.`;
     guessInput.disabled = true;
     guessButton.disabled = true;
   } else {
