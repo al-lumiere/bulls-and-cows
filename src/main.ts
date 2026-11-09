@@ -2,6 +2,7 @@ import { generateSecret } from "./generateSecret";
 import { startRound, submitGuess, type Round } from "./round";
 import { createDigitValidator } from "./createDigitValidator";
 import { countPossibleSecrets } from "./countPossibleSecrets";
+import { loadRecords, saveRecord } from "./records";
 
 const main = document.createElement("main");
 const title = document.createElement("h1");
@@ -141,6 +142,12 @@ guessForm.addEventListener("submit", (event) => {
     feedback.textContent = `You won! Attempts: ${round.history.length}. Time: ${seconds} s.`;
     guessInput.disabled = true;
     guessButton.disabled = true;
+
+    saveRecord(round.base, round.secret.length, {
+      attempts: round.history.length,
+      elapsedMs,
+    });
+    renderRecords();
   } else {
     feedback.textContent = `${entry.bulls} bulls, ${entry.cows} cows`;
     guessInput.focus();
@@ -179,13 +186,41 @@ function updateSettings(): void {
 
   const count = countPossibleSecrets(Number(lengthSelect.value), base);
   possibilities.textContent = `Possible secrets: ${count}`;
+  renderRecords();
 }
 
 baseSelect.addEventListener("change", updateSettings);
 lengthSelect.addEventListener("change", updateSettings);
 
 settings.append(possibilities, startButton);
-main.append(title, settings, game);
+
+const leaderboard = document.createElement("section");
+const recordsTitle = document.createElement("h2");
+const recordsList = document.createElement("ol");
+const emptyRecords = document.createElement("p");
+emptyRecords.textContent = "No records yet.";
+
+leaderboard.append(recordsTitle, emptyRecords, recordsList);
+
+function renderRecords(): void {
+  const base = Number(baseSelect.value);
+  const length = Number(lengthSelect.value);
+  const records = loadRecords(base, length);
+  const system = baseSelect.selectedOptions[0].text;
+
+  recordsTitle.textContent = `Top 5 — ${system} / ${length}`;
+  emptyRecords.hidden = records.length > 0;
+
+  recordsList.replaceChildren(
+    ...records.map(({ attempts, elapsedMs }) => {
+      const item = document.createElement("li");
+      item.textContent = `${attempts} attempts — ${(elapsedMs / 1000).toFixed(1)} s`;
+      return item;
+    }),
+  );
+}
+
+main.append(title, settings, game, leaderboard);
 document.body.append(main);
 
 updateSettings();
